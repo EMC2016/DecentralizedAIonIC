@@ -1,11 +1,36 @@
 -- https://forum.dfinity.org/t/do-people-actually-use-vessel/9849/8?u=cryptoschindler
 -- ^ how to create the hash
-let upstream = https://github.com/dfinity/vessel-package-set/releases/download/mo-0.6.21-20220215/package-set.dhall sha256:b46f30e811fe5085741be01e126629c2a55d4c3d6ebf49408fb3b4a98e37589b
+let upstream = https://github.com/dfinity/vessel-package-set/releases/download/mo-0.13.6-20250121/package-set.dhall sha256:343764618772fc4674059493b3ee0d7d05065383bcc314a4a961e897f8553b6c
 let Package =
     { name : Text, version : Text, repo : Text, dependencies : List Text }
 
 let
   additions = [
+    { name = "base"
+    , repo = "https://github.com/dfinity/motoko-base"
+    , version = "master"
+    , dependencies = [] : List Text
+    },
+    { name = "matchers"
+    , repo = "https://github.com/kritzcreek/motoko-matchers"
+    , version = "v1.2.0"
+    , dependencies = [] : List Text
+    },
+    { name = "hex"
+    , repo = "https://github.com/letmejustputthishere/motoko-hex"
+    , version = "master"
+    , dependencies = [ "base" ]
+    },
+    { name = "canistergeek"
+    , repo = "https://github.com/usergeek/canistergeek-ic-motoko"
+    , version = "v0.0.3"
+    , dependencies = [ "base" ]
+    },
+    { name = "uuid"
+    , version = "v0.2.0"
+    , repo = "https://github.com/aviate-labs/uuid.mo"
+    , dependencies = [ "base", "io", "encoding" ]
+    },
     { name = "array"
     , repo = "https://github.com/aviate-labs/array.mo"
     , version = "v0.2.0"

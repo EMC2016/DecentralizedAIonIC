@@ -28,7 +28,7 @@
 
   const routes = {
     // Exact path (with /# in front of route, e.g. .../#/about)
-    "/": deVinci,
+    "/": deVinci, // This file imports ./components/ChatInterface.
     //"/mychats": UserChatsOverview, TODO
     "/settings": UserSettings,
     "/about": About,

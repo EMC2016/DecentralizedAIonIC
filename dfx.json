@@ -5,16 +5,11 @@
       "type": "motoko"
     },
     "DeVinci_frontend": {
-      "dependencies": [
-        "DeVinci_backend"
-      ],
+      "dependencies": ["DeVinci_backend"],
       "frontend": {
         "entrypoint": "dist/index.html"
       },
-      "source": [
-        "dist/",
-        "src/assets"
-      ],
+      "source": ["dist/", "src/assets"],
       "type": "assets"
     },
     "internet_identity": {
@@ -44,27 +39,21 @@
   },
   "defaults": {
     "build": {
-      "packtool": "mops sources",
+      "packtool": "vessel sources",
       "args": ""
     }
   },
   "networks": {
     "development": {
-      "providers": [
-        "https://icp0.io"
-      ],
+      "providers": ["https://icp0.io"],
       "type": "persistent"
     },
     "testing": {
-      "providers": [
-        "https://icp0.io"
-      ],
+      "providers": ["https://icp0.io"],
       "type": "persistent"
     },
     "backup": {
-      "providers": [
-        "https://icp0.io"
-      ],
+      "providers": ["https://icp0.io"],
       "type": "persistent"
     }
   },

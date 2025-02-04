@@ -51,6 +51,7 @@ type DeVinciBackend =
                                        EmailSubscriber;
                                      }) query;
    greet: (text) -> (text);
+   setCanisterCreationCanisterId: (text) -> (AuthRecordResult);
    submit_signup_form: (SignUpFormInput) -> (text);
    update_caller_settings: (UserSettings) -> (UpdateUserSettingsResult);
    update_chat_messages: (text, vec Message) -> (ChatIdResult);
@@ -97,6 +98,12 @@ type Chat =
    messages: vec Message;
    owner: principal;
  };
+type AuthRecordResult = 
+ variant {
+   Err: ApiError;
+   Ok: AuthRecord;
+ };
+type AuthRecord = record {auth: text;};
 type ApiError = 
  variant {
    InvalidTokenId;

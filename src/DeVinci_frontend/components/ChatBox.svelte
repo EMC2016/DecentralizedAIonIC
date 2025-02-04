@@ -1,3 +1,4 @@
+<!-- THis file configures the format of output and input. -->
 <script lang="ts">
   import { onMount } from "svelte";
   import { store, chatModelIdInitiatedGlobal, chatModelGlobal, activeChatGlobal } from "../store";
@@ -38,12 +39,58 @@
   const scrollToBottom = node => {
 		const scroll = () => node.scroll({
 			top: node.scrollHeight,
-			behavior: 'smooth',
+			behavior: 'auto',
 		});
 		scroll();
 
 		return { update: scroll }
 	};
+
+// const scrollToBottom = (node) => {
+//     const scroll = () => {
+//         let start = node.scrollTop;
+//         let end = node.scrollHeight;
+//         let duration = 6000; // 3-second scroll for low GPU usage
+//         let steps = 20; // 20 steps over 3 seconds
+//         const stepDuration = duration / steps;
+//         const stepAmount = (end - start) / steps;
+//         let currentStep = 0;
+
+//         const intervalId = setInterval(() => {
+//             currentStep++;
+//             node.scrollTop = start + stepAmount * currentStep;
+//             if (currentStep >= steps) {
+//                 clearInterval(intervalId);
+//             }
+//         }, stepDuration);
+//     };
+
+//     return { update: scroll };
+// };
+
+
+// const scrollToBottom = (node) => {
+//     const start = node.scrollTop;
+//     const end = node.scrollHeight;
+//     const duration = 3000; // 3 seconds total
+//     const steps = 20; // 20 steps over 3 seconds
+//     const stepDuration = duration / steps;
+//     const stepAmount = (end - start) / steps;
+//     let currentStep = 0;
+
+//     const intervalId = setInterval(() => {
+//         currentStep++;
+//         node.scrollTop = start + stepAmount * currentStep;
+//         if (currentStep >= steps) {
+//             clearInterval(intervalId);
+//         }
+//     }, stepDuration);
+    
+// };
+
+// // scrollToBottom(document.getElementById('messageContainer'));
+
+
 
   async function interruptMessageGeneration() {
   if ($chatModelGlobal) {
@@ -257,7 +304,7 @@
   onMount(loadChat);
 </script>
 
-<div class="messages h-[calc(100vh-164px)]" style="overflow:auto;" use:scrollToBottom={messages}>
+<div id = "messageContainer"class="messages h-[calc(100vh-164px)]" style="overflow:auto;" use:scrollToBottom={messages}>
   {#if $chatModelIdInitiatedGlobal && messages.length === 0}
     <StartUpChatPanel sendMessageCallbackFunction={sendMessage} />
   {/if}

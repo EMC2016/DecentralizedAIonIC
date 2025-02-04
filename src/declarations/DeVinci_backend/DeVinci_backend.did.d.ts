@@ -6,6 +6,9 @@ export type ApiError = { 'ZeroAddress' : null } |
   { 'InvalidTokenId' : null } |
   { 'Unauthorized' : null } |
   { 'Other' : string };
+export interface AuthRecord { 'auth' : string }
+export type AuthRecordResult = { 'Ok' : AuthRecord } |
+  { 'Err' : ApiError };
 export interface Chat {
   'id' : string,
   'messages' : Array<Message>,
@@ -40,6 +43,7 @@ export interface DeVinciBackend {
   'get_chat' : ActorMethod<[string], ChatResult>,
   'get_email_subscribers' : ActorMethod<[], Array<[string, EmailSubscriber]>>,
   'greet' : ActorMethod<[string], string>,
+  'setCanisterCreationCanisterId' : ActorMethod<[string], AuthRecordResult>,
   'submit_signup_form' : ActorMethod<[SignUpFormInput], string>,
   'update_caller_settings' : ActorMethod<
     [UserSettings],

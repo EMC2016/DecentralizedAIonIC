@@ -43,6 +43,8 @@ export const idlFactory = ({ IDL }) => {
     'emailAddress' : IDL.Text,
     'pageSubmittedFrom' : IDL.Text,
   });
+  const AuthRecord = IDL.Record({ 'auth' : IDL.Text });
+  const AuthRecordResult = IDL.Variant({ 'Ok' : AuthRecord, 'Err' : ApiError });
   const SignUpFormInput = IDL.Record({
     'emailAddress' : IDL.Text,
     'pageSubmittedFrom' : IDL.Text,
@@ -70,6 +72,11 @@ export const idlFactory = ({ IDL }) => {
         ['query'],
       ),
     'greet' : IDL.Func([IDL.Text], [IDL.Text], []),
+    'setCanisterCreationCanisterId' : IDL.Func(
+        [IDL.Text],
+        [AuthRecordResult],
+        [],
+      ),
     'submit_signup_form' : IDL.Func([SignUpFormInput], [IDL.Text], []),
     'update_caller_settings' : IDL.Func(
         [UserSettings],
