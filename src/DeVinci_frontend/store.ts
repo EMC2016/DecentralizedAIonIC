@@ -3,7 +3,7 @@ import type { Principal } from "@dfinity/principal";
 import type { HttpAgent, Identity } from "@dfinity/agent";
 import { StoicIdentity } from "ic-stoic-identity";
 import { AuthClient } from "@dfinity/auth-client";
-import UAParser from 'ua-parser-js';
+import UAParser from "ua-parser-js";
 import {
   DeVinci_backend,
   createActor as createBackendCanisterActor,
@@ -30,26 +30,40 @@ export const HOST =
 export const webGpuSupportedBrowsers = "Google Chrome, Microsoft Edge";
 const uaParser = new UAParser();
 const result = uaParser.getResult();
-export const device = result.device.model || 'Unknown Device';
+export const device = result.device.model || "Unknown Device";
 export let deviceType = result.device.type; // Will return 'mobile' for mobile devices, 'tablet' for tablets, and undefined for desktops
 let osName = result.os.name; // Get the operating system name
 
 export const currentModelName = writable<string>("No model selected");
 
 if (!deviceType) {
-  deviceType = 'desktop';
-} else if (deviceType === 'mobile' || deviceType === 'tablet') {
-  if (osName === 'Android') {
+  deviceType = "desktop";
+} else if (deviceType === "mobile" || deviceType === "tablet") {
+  if (osName === "Android") {
     //deviceType = 'Android ' + deviceType; // e.g., 'Android mobile'
-    deviceType = 'Android';
-  } else if (osName === 'iOS') {
+    deviceType = "Android";
+  } else if (osName === "iOS") {
     //deviceType = 'iOS ' + deviceType; // e.g., 'iOS mobile'
-    deviceType = 'iOS';
-  };
-};
-export const browser = result.browser.name || 'Unknown Browser';
+    deviceType = "iOS";
+  }
+}
+export const browser = result.browser.name || "Unknown Browser";
 // @ts-ignore
 export const supportsWebGpu = navigator.gpu !== undefined;
+console.log("GPU: " + navigator.gpu);
+
+// Request an adapter
+const adapter = await navigator.gpu.requestAdapter();
+console.log("ADAPTER: " + adapter);
+if (adapter) {
+  // Request adapter info (may require permission from user!)
+  const device = await adapter.requestDevice();
+
+  console.log("Device:", device);
+
+  // Some browsers expose an experimental "type" property:
+  // console.log("Adapter type:", adapter.type);
+}
 
 export let chatModelGlobal = writable(null);
 export let chatModelDownloadedGlobal = writable(false);
@@ -57,12 +71,17 @@ export let chatModelIdInitiatedGlobal = writable(null);
 export let activeChatGlobal = writable(null);
 
 export const temperatureDefaultSetting = 0.6;
-export const responseLengthDefaultSetting = 'Long';
-export const systemPromptDefaultSetting = "You are a helpful, respectful and honest assistant.";
+export const responseLengthDefaultSetting = "Long";
+export const systemPromptDefaultSetting =
+  "You are a helpful, respectful and honest assistant.";
 export const saveChatsDefaultSetting = true;
 export let userSettings = writable(null);
-userSettings.subscribe((value) => localStorage.setItem("userSettings", JSON.stringify(value)));
-export let selectedAiModelId = writable(localStorage.getItem("selectedAiModelId") || null);
+userSettings.subscribe((value) =>
+  localStorage.setItem("userSettings", JSON.stringify(value)),
+);
+export let selectedAiModelId = writable(
+  localStorage.getItem("selectedAiModelId") || null,
+);
 let selectedAiModelIdValue = null;
 selectedAiModelId.subscribe((value) => {
   selectedAiModelIdValue = value;
@@ -70,37 +89,49 @@ selectedAiModelId.subscribe((value) => {
     localStorage.removeItem("selectedAiModelId");
   } else {
     localStorage.setItem("selectedAiModelId", value);
-  };
+  }
 });
 
-export let saveChatsUserSelection = writable(localStorage.getItem("saveChatsUserSelection") === "false" ? false : true); // values: true for "save" or false for "doNotSave" with true as default
+export let saveChatsUserSelection = writable(
+  localStorage.getItem("saveChatsUserSelection") === "false" ? false : true,
+); // values: true for "save" or false for "doNotSave" with true as default
 let saveChatsUserSelectionValue = saveChatsDefaultSetting;
 saveChatsUserSelection.subscribe((value) => {
   saveChatsUserSelectionValue = value;
   // @ts-ignore
-  localStorage.setItem("saveChatsUserSelection", value)
+  localStorage.setItem("saveChatsUserSelection", value);
 });
 
-export let useKnowledgeBase = writable(localStorage.getItem("useKnowledgeBase") === "true" ? true : false);
+export let useKnowledgeBase = writable(
+  localStorage.getItem("useKnowledgeBase") === "true" ? true : false,
+);
 useKnowledgeBase.subscribe((value) => {
   // @ts-ignore
-  localStorage.setItem("useKnowledgeBase", value)
+  localStorage.setItem("useKnowledgeBase", value);
 });
 
-export let userKnowledgebaseCanisterAddress = writable(localStorage.getItem("userKnowledgebaseCanisterAddress") || null);
-let userKnowledgebaseCanisterAddressValue = localStorage.getItem("userKnowledgebaseCanisterAddress") || null;
+export let userKnowledgebaseCanisterAddress = writable(
+  localStorage.getItem("userKnowledgebaseCanisterAddress") || null,
+);
+let userKnowledgebaseCanisterAddressValue =
+  localStorage.getItem("userKnowledgebaseCanisterAddress") || null;
 userKnowledgebaseCanisterAddress.subscribe((value) => {
   userKnowledgebaseCanisterAddressValue = value;
-  localStorage.setItem("userKnowledgebaseCanisterAddress", value)
+  localStorage.setItem("userKnowledgebaseCanisterAddress", value);
 });
-export let userBackendCanisterAddress = writable(localStorage.getItem("userBackendCanisterAddress") || null);
-let userBackendCanisterAddressValue = localStorage.getItem("userBackendCanisterAddress") || null;
+export let userBackendCanisterAddress = writable(
+  localStorage.getItem("userBackendCanisterAddress") || null,
+);
+let userBackendCanisterAddressValue =
+  localStorage.getItem("userBackendCanisterAddress") || null;
 userBackendCanisterAddress.subscribe((value) => {
   userBackendCanisterAddressValue = value;
-  localStorage.setItem("userBackendCanisterAddress", value)
+  localStorage.setItem("userBackendCanisterAddress", value);
 });
 
-export let downloadedModels = writable(JSON.parse(localStorage.getItem("downloadedAiModels") || "[]"));
+export let downloadedModels = writable(
+  JSON.parse(localStorage.getItem("downloadedAiModels") || "[]"),
+);
 downloadedModels.subscribe((value) => {
   localStorage.setItem("downloadedAiModels", JSON.stringify(value));
 });
@@ -110,11 +141,17 @@ export let vectorStore = writable(null);
 
 export let installAppDeferredPrompt = writable(null); // the installAppDeferredPrompt event cannot be stored across sessions
 
-let authClient : AuthClient;
+let authClient: AuthClient;
 const APPLICATION_NAME = "DeVinci";
-const APPLICATION_LOGO_URL = "https://x6occ-biaaa-aaaai-acqzq-cai.icp0.io/devinci512.png";
+const APPLICATION_LOGO_URL =
+  "https://x6occ-biaaa-aaaai-acqzq-cai.icp0.io/devinci512.png";
 
-const AUTH_PATH = "/authenticate/?applicationName="+APPLICATION_NAME+"&applicationLogo="+APPLICATION_LOGO_URL+"#authorize";
+const AUTH_PATH =
+  "/authenticate/?applicationName=" +
+  APPLICATION_NAME +
+  "&applicationLogo=" +
+  APPLICATION_LOGO_URL +
+  "#authorize";
 
 const days = BigInt(30);
 const hours = BigInt(24);
@@ -156,76 +193,88 @@ export const createStore = ({
 }) => {
   const { subscribe, update } = writable<State>(defaultState);
   let globalState: State;
-  subscribe((value) => globalState = value);
+  subscribe((value) => (globalState = value));
 
   const initUserSettings = async (backendActor) => {
     // Load the user's settings
-      // Especially selected AI model to be used for chat
+    // Especially selected AI model to be used for chat
     if (navigator.onLine) {
       try {
-        const retrievedSettingsResponse = await backendActor.get_caller_settings();
+        const retrievedSettingsResponse =
+          await backendActor.get_caller_settings();
         // @ts-ignore
         if (retrievedSettingsResponse.Ok) {
           userSettings.set(retrievedSettingsResponse.Ok);
-          const userSelectedAiModelId = retrievedSettingsResponse.Ok.selectedAiModelId;
+          const userSelectedAiModelId =
+            retrievedSettingsResponse.Ok.selectedAiModelId;
           selectedAiModelId.set(userSelectedAiModelId);
         } else {
-          console.error("Error retrieving user settings: ", retrievedSettingsResponse.Err);
-          throw new Error("Error retrieving user settings: ", retrievedSettingsResponse.Err);
-        };
+          console.error(
+            "Error retrieving user settings: ",
+            retrievedSettingsResponse.Err,
+          );
+          throw new Error(
+            "Error retrieving user settings: ",
+            retrievedSettingsResponse.Err,
+          );
+        }
       } catch (error) {
         console.error("Error in get_caller_settings: ", error);
         if (localStorage.getItem("userSettings")) {
           try {
-            userSettings.set(JSON.parse(localStorage.getItem("userSettings")));            
+            userSettings.set(JSON.parse(localStorage.getItem("userSettings")));
           } catch (error) {
-            userSettings.set({ // default settings
+            userSettings.set({
+              // default settings
               temperature: temperatureDefaultSetting,
               responseLength: responseLengthDefaultSetting,
               saveChats: saveChatsUserSelectionValue,
               selectedAiModelId: selectedAiModelIdValue,
               systemPrompt: systemPromptDefaultSetting,
-            });        
-          };
+            });
+          }
         } else {
-          userSettings.set({ // default settings
+          userSettings.set({
+            // default settings
             temperature: temperatureDefaultSetting,
             responseLength: responseLengthDefaultSetting,
             saveChats: saveChatsUserSelectionValue,
             selectedAiModelId: selectedAiModelIdValue,
             systemPrompt: systemPromptDefaultSetting,
           });
-        };
+        }
         if (localStorage.getItem("selectedAiModelId")) {
           selectedAiModelId.set(localStorage.getItem("selectedAiModelId"));
-        };
-      };
+        }
+      }
     } else {
       if (localStorage.getItem("userSettings")) {
         try {
-          userSettings.set(JSON.parse(localStorage.getItem("userSettings")));            
+          userSettings.set(JSON.parse(localStorage.getItem("userSettings")));
         } catch (error) {
-          userSettings.set({ // default settings
+          userSettings.set({
+            // default settings
             temperature: temperatureDefaultSetting,
             responseLength: responseLengthDefaultSetting,
             saveChats: saveChatsUserSelectionValue,
             selectedAiModelId: selectedAiModelIdValue,
             systemPrompt: systemPromptDefaultSetting,
-          });          
-        };
+          });
+        }
       } else {
-        userSettings.set({ // default settings
+        userSettings.set({
+          // default settings
           temperature: temperatureDefaultSetting,
           responseLength: responseLengthDefaultSetting,
           saveChats: saveChatsUserSelectionValue,
           selectedAiModelId: selectedAiModelIdValue,
           systemPrompt: systemPromptDefaultSetting,
         });
-      };
+      }
       if (localStorage.getItem("selectedAiModelId")) {
         selectedAiModelId.set(localStorage.getItem("selectedAiModelId"));
-      };
-    };
+      }
+    }
   };
 
   const initBackendCanisterActor = async (loginType, identity: Identity) => {
@@ -255,7 +304,7 @@ export const createStore = ({
     /* if (userBackendCanisterAddressValue && userBackendCanisterAddressValue !== null && userBackendCanisterAddressValue.length > 5) {
       canisterId = userBackendCanisterAddressValue;
     }; */
-    
+
     if (loginType === "plug") {
       let backendActor = (await window.ic?.plug.createActor({
         canisterId: canisterId,
@@ -313,7 +362,7 @@ export const createStore = ({
         };
       }; */
       return backendActor;
-    };
+    }
   };
 
   const updateBackendCanisterActor = async (newBackendCanisterId) => {
@@ -341,7 +390,7 @@ export const createStore = ({
             host: HOST,
           },
         });
-      };
+      }
       if (backendActor) {
         update((state) => {
           return {
@@ -349,10 +398,10 @@ export const createStore = ({
             backendActor,
           };
         });
-      };
+      }
       return backendActor;
-    };
-    return null; 
+    }
+    return null;
   };
 
   const nfidConnect = async () => {
@@ -367,20 +416,20 @@ export const createStore = ({
           initNfid(identity);
         },
         identityProvider: "https://nfid.one" + AUTH_PATH,
-          /* process.env.DFX_NETWORK === "ic"
+        /* process.env.DFX_NETWORK === "ic"
             ? "https://nfid.one" + AUTH_PATH
             : process.env.LOCAL_NFID_CANISTER + AUTH_PATH, */
         // Maximum authorization expiration is 30 days
         maxTimeToLive: days * hours * nanosecondsPerHour,
         windowOpenerFeatures:
-          `left=${window.screen.width / 2 - 525 / 2}, `+
+          `left=${window.screen.width / 2 - 525 / 2}, ` +
           `top=${window.screen.height / 2 - 705 / 2},` +
           `toolbar=0,location=0,menubar=0,width=525,height=705`,
         // See https://docs.nfid.one/multiple-domains
         // for instructions on how to use derivationOrigin
         // derivationOrigin: "https://<canister_id>.ic0.app"
       });
-    };
+    }
   };
 
   const initNfid = async (identity: Identity) => {
@@ -389,13 +438,13 @@ export const createStore = ({
     if (!backendActor) {
       console.warn("couldn't create backend actor");
       return;
-    };
+    }
 
     await initUserSettings(backendActor);
 
     //let accounts = JSON.parse(await identity.accounts());
 
-    localStorage.setItem('isAuthed', "nfid"); // Set flag to indicate existing login for future sessions
+    localStorage.setItem("isAuthed", "nfid"); // Set flag to indicate existing login for future sessions
 
     update((state) => ({
       ...state,
@@ -431,22 +480,25 @@ export const createStore = ({
           `top=${window.screen.height / 2 - 705 / 2},` +
           `toolbar=0,location=0,menubar=0,width=525,height=705`,
       });
-    };
+    }
   };
 
   const initInternetIdentity = async (identity: Identity) => {
-    const backendActor = await initBackendCanisterActor("internetidentity", identity);
+    const backendActor = await initBackendCanisterActor(
+      "internetidentity",
+      identity,
+    );
 
     if (!backendActor) {
       console.warn("couldn't create backend actor");
       return;
-    };
+    }
 
     await initUserSettings(backendActor);
 
     //let accounts = JSON.parse(await identity.accounts());
 
-    localStorage.setItem('isAuthed', "internetidentity"); // Set flag to indicate existing login for future sessions
+    localStorage.setItem("isAuthed", "internetidentity"); // Set flag to indicate existing login for future sessions
 
     update((state) => ({
       ...state,
@@ -478,14 +530,14 @@ export const createStore = ({
     if (!backendActor) {
       console.warn("couldn't create backend actor");
       return;
-    };
+    }
 
     await initUserSettings(backendActor);
 
     // the stoic agent provides an `accounts()` method that returns accounts associated with the principal
     let accounts = JSON.parse(await identity.accounts());
 
-    localStorage.setItem('isAuthed', "stoic"); // Set flag to indicate existing login for future sessions
+    localStorage.setItem("isAuthed", "stoic"); // Set flag to indicate existing login for future sessions
 
     update((state) => ({
       ...state,
@@ -503,7 +555,7 @@ export const createStore = ({
     if (window.ic?.plug === undefined) {
       window.open("https://plugwallet.ooo/", "_blank");
       return;
-    };
+    }
 
     // check if plug is connected
     const plugConnected = await window.ic?.plug?.isConnected();
@@ -521,8 +573,8 @@ export const createStore = ({
       } catch (e) {
         console.warn(e);
         return;
-      };
-    };
+      }
+    }
 
     await initPlug();
   };
@@ -539,7 +591,7 @@ export const createStore = ({
       result
         ? console.info("agent created")
         : console.warn("agent creation failed");
-    };
+    }
     // check if createActor method is available
     if (!window.ic?.plug?.createActor) {
       console.warn("no createActor found");
@@ -554,20 +606,20 @@ export const createStore = ({
         );
         console.error(err);
       });
-    };
+    }
 
     const backendActor = await initBackendCanisterActor("plug", null);
 
     if (!backendActor) {
       console.warn("couldn't create backend actor");
       return;
-    };
+    }
 
     await initUserSettings(backendActor);
 
     const principal = await window.ic.plug.agent.getPrincipal();
 
-    localStorage.setItem('isAuthed', "plug"); // Set flag to indicate existing login for future sessions
+    localStorage.setItem("isAuthed", "plug"); // Set flag to indicate existing login for future sessions
 
     update((state) => ({
       ...state,
@@ -585,7 +637,7 @@ export const createStore = ({
     if (window.ic?.infinityWallet === undefined) {
       window.open("https://wallet.bitfinity.network/", "_blank");
       return;
-    };
+    }
 
     // check if bitfinity is connected
     const bitfinityConnected = await window.ic?.infinityWallet?.isConnected();
@@ -602,8 +654,8 @@ export const createStore = ({
       } catch (e) {
         console.warn(e);
         return;
-      };
-    };
+      }
+    }
 
     await initBitfinity();
   };
@@ -625,7 +677,7 @@ export const createStore = ({
     if (!window.ic?.infinityWallet?.createActor) {
       console.warn("no createActor found");
       return;
-    };
+    }
 
     // Fetch root key for certificate validation during development
     if (process.env.DFX_NETWORK === "local") {
@@ -642,11 +694,11 @@ export const createStore = ({
     if (!backendActor) {
       console.warn("couldn't create backend actor");
       return;
-    };
+    }
 
     const principal = await window.ic.infinityWallet.getPrincipal();
 
-    localStorage.setItem('isAuthed', "bitfinity"); // Set flag to indicate existing login for future sessions
+    localStorage.setItem("isAuthed", "bitfinity"); // Set flag to indicate existing login for future sessions
 
     update((state) => ({
       ...state,
@@ -670,28 +722,28 @@ export const createStore = ({
         if (plugConnected) {
           console.info("plug disconnect failed, trying once more");
           await window.ic?.plug?.disconnect();
-        };
+        }
       } catch (error) {
         console.error("Plug disconnect error: ", error);
-      };
+      }
     } else if (globalState.isAuthed === "stoic") {
       try {
         StoicIdentity.disconnect();
       } catch (error) {
         console.error("StoicIdentity disconnect error: ", error);
-      };
+      }
     } else if (globalState.isAuthed === "nfid") {
       try {
         await authClient.logout();
       } catch (error) {
         console.error("NFid disconnect error: ", error);
-      };
+      }
     } else if (globalState.isAuthed === "internetidentity") {
       try {
         await authClient.logout();
       } catch (error) {
         console.error("Internet Identity disconnect error: ", error);
-      };
+      }
     } else if (globalState.isAuthed === "bitfinity") {
       /* try {
         await window.ic?.infinityWallet?.disconnect();
@@ -705,7 +757,7 @@ export const createStore = ({
       } catch (error) {
         console.error("Bitfinity disconnect error: ", error);
       }; */
-    };
+    }
 
     update((prevState) => {
       return {
@@ -716,7 +768,7 @@ export const createStore = ({
 
   const checkExistingLoginAndConnect = async () => {
     // Check login state if user is already logged in
-    const isAuthed = localStorage.getItem('isAuthed'); // Accessing Local Storage to check login state
+    const isAuthed = localStorage.getItem("isAuthed"); // Accessing Local Storage to check login state
     if (isAuthed) {
       const authClient = await AuthClient.create();
       if (await authClient.isAuthenticated()) {
@@ -735,43 +787,61 @@ export const createStore = ({
         } else if (isAuthed === "stoic") {
           console.info("Stoic connection detected");
           stoicConnect();
-        };
-      };
-    };
+        }
+      }
+    }
   };
 
   const getActorForUserKnowledgebaseCanister = async () => {
     if (globalState.userKnowledgebaseCanisterActor) {
       return globalState.userKnowledgebaseCanisterActor;
-    };
+    }
     if (authClient) {
       const identity = await authClient.getIdentity();
 
       if (!userKnowledgebaseCanisterAddressValue) {
         try {
-          const canisterEntryResponse = await globalState.backendActor.getUserCanistersEntry({ 'canisterType' : { 'Knowledgebase' : null } });
+          const canisterEntryResponse =
+            await globalState.backendActor.getUserCanistersEntry({
+              canisterType: { Knowledgebase: null },
+            });
           // @ts-ignore
           if (canisterEntryResponse.Ok) {
             // @ts-ignore
-            userKnowledgebaseCanisterAddress.set(canisterEntryResponse.Ok?.userCanister?.canisterAddress);
+            userKnowledgebaseCanisterAddress.set(
+              canisterEntryResponse.Ok?.userCanister?.canisterAddress,
+            );
           } else {
             // @ts-ignore
-            console.error("Error retrieving user knowledgebase canister: ", canisterEntryResponse.Err);
+            console.error(
+              "Error retrieving user knowledgebase canister: ",
+              canisterEntryResponse.Err,
+            );
             // @ts-ignore
-            throw new Error("Error retrieving user knowledgebase canister: ", canisterEntryResponse.Err);
-          };
+            throw new Error(
+              "Error retrieving user knowledgebase canister: ",
+              canisterEntryResponse.Err,
+            );
+          }
         } catch (error) {
-          console.error("Error in getActorForUserKnowledgebaseCanister: ", error);
+          console.error(
+            "Error in getActorForUserKnowledgebaseCanister: ",
+            error,
+          );
           return null;
-        };
-      };
+        }
+      }
 
-      const userKnowledgebaseCanisterActor = createUserKnowledgebaseBackendCanisterActor(userKnowledgebaseCanisterAddressValue, {
-        agentOptions: {
-          identity,
-          host: HOST,
-        },
-      });
+      const userKnowledgebaseCanisterActor =
+        createUserKnowledgebaseBackendCanisterActor(
+          userKnowledgebaseCanisterAddressValue,
+          {
+            agentOptions: {
+              identity,
+              host: HOST,
+            },
+          },
+        );
       update((state) => {
         return {
           ...state,
@@ -779,8 +849,8 @@ export const createStore = ({
         };
       });
       return userKnowledgebaseCanisterActor;
-    };
-    return null;    
+    }
+    return null;
   };
 
   return {

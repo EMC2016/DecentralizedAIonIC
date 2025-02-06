@@ -3,6 +3,10 @@
   import ChatBubbleDeVinci from './ChatBubbleDeVinci.svelte';
 
   export let message;
+
+  // $: if (message.name === 'DeVinci') {
+  //   console.log('message from DeVinci:', message.content);
+  // }
 </script>
 
 <div class="message">

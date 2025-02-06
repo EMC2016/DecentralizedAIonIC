@@ -46,49 +46,6 @@
 		return { update: scroll }
 	};
 
-// const scrollToBottom = (node) => {
-//     const scroll = () => {
-//         let start = node.scrollTop;
-//         let end = node.scrollHeight;
-//         let duration = 6000; // 3-second scroll for low GPU usage
-//         let steps = 20; // 20 steps over 3 seconds
-//         const stepDuration = duration / steps;
-//         const stepAmount = (end - start) / steps;
-//         let currentStep = 0;
-
-//         const intervalId = setInterval(() => {
-//             currentStep++;
-//             node.scrollTop = start + stepAmount * currentStep;
-//             if (currentStep >= steps) {
-//                 clearInterval(intervalId);
-//             }
-//         }, stepDuration);
-//     };
-
-//     return { update: scroll };
-// };
-
-
-// const scrollToBottom = (node) => {
-//     const start = node.scrollTop;
-//     const end = node.scrollHeight;
-//     const duration = 3000; // 3 seconds total
-//     const steps = 20; // 20 steps over 3 seconds
-//     const stepDuration = duration / steps;
-//     const stepAmount = (end - start) / steps;
-//     let currentStep = 0;
-
-//     const intervalId = setInterval(() => {
-//         currentStep++;
-//         node.scrollTop = start + stepAmount * currentStep;
-//         if (currentStep >= steps) {
-//             clearInterval(intervalId);
-//         }
-//     }, stepDuration);
-    
-// };
-
-// // scrollToBottom(document.getElementById('messageContainer'));
 
 
 
@@ -152,6 +109,24 @@
         messages = [...messages, { role: 'assistant', content: replyText, name: 'DeVinci' }];
         const reply = await modelCallbackFunction(messageHistoryWithPrompt.slice(-5), generateProgressCallback); // passing in much of the message history easily overwhelms the available device memory
         messages = [...messages.slice(0, -1), { role: 'assistant', content: reply, name: 'DeVinci' }];
+
+
+        // let tempMessage = ""; // Buffer to collect message chunks
+
+        // // Custom callback to collect full message before updating UI
+        // const progressCallback = (_step: number, message: string) => {
+        //   tempMessage = message; 
+        // };
+
+        // // Get full reply before update UI yet)
+        // const reply = await modelCallbackFunction(
+        //   messageHistoryWithPrompt.slice(-5), 
+        //   progressCallback
+        // );
+        // console.log("Get the full reply and send back: "+tempMessage.trim())
+        // // Now update messages in one go
+        // messages = [...messages.slice(0, -1), { role: 'assistant', content: tempMessage.trim(), name: 'DeVinci' }];
+
       } catch (error) {
         console.error("Error getting response from model: ", error);
         messages = [...messages, { role: 'system', content: "There was an error unfortunately. Please try again.", name: 'DeVinci' }];

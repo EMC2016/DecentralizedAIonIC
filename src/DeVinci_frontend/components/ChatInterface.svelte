@@ -84,12 +84,9 @@
 
   async function getChatModelResponse(prompt, progressCallback = generateProgressCallback) {
     try {
-      /* debugOutput = "###in getChatModelResponse###";
-      debugOutput += JSON.stringify(prompt);
-      setLabel("debug-label", debugOutput); */
+     
       if ((vectorDbSearchTool && useSessionVectorDb) || $useKnowledgeBase) {
-        /* debugOutput += " useSessionVectorDb ";
-        setLabel("debug-label", debugOutput); */
+       
         // Add content from local knowledge base if activated
         let additionalContentToProvide = "";
         additionalContentToProvide = " Additional content (use this if relevant to the User Prompt): ";
@@ -107,11 +104,7 @@
             } catch (error) {
               console.error("Error in getChatModelResponse vectorDbSearchTool");
               console.error(error.toString());
-              /* debugOutput += " final prompt and additionalContentEntry error ";
-              debugOutput += error.toString();
-                debugOutput += error.name;
-                debugOutput += error.message;
-              setLabel("debug-label", debugOutput);  */
+              
             };
           };
           if ($useKnowledgeBase) {
@@ -124,11 +117,7 @@
             } catch (error) {
               console.error("Error in getChatModelResponse vectorDbSearchTool");
               console.error(error.toString());
-              /* debugOutput += " final prompt and additionalContentEntry error ";
-              debugOutput += error.toString();
-                debugOutput += error.name;
-                debugOutput += error.message;
-              setLabel("debug-label", debugOutput);  */
+              
             };
           };
           // Compose the final prompt
@@ -137,17 +126,11 @@
         } catch (error) {
           console.error("Error in getChatModelResponse getting additionalContentToProvide");
           console.error(error.toString());
-          /* debugOutput += " vectorDbSearchToolResponse error ";
-          debugOutput += error.toString();
-              debugOutput += error.name;
-              debugOutput += error.message;
-          setLabel("debug-label", debugOutput);   */
+         
         };
       };
       try {
-        /* debugOutput += " final prompt ";
-        debugOutput += JSON.stringify(prompt);
-        setLabel("debug-label", debugOutput); */
+        
         let curMessage = "";
         let stepCount = 0;
         // determine inference parameters to use
@@ -156,20 +139,17 @@
           role: "system",
           content: inferenceParameters.system_prompt,
         });
+        
         const completion = await $chatModelGlobal.chat.completions.create({
           stream: true,
           messages: prompt,
           temperature: inferenceParameters.temperature,
           max_tokens: inferenceParameters.max_tokens,
         });
-        /* debugOutput += " completion ";
-        debugOutput += JSON.stringify(completion);
-        setLabel("debug-label", debugOutput); */
+        console.log("Get chatModelGlobal here")
         try {
           for await (const chunk of completion) {
-            /* debugOutput += " chunk ";
-            debugOutput += JSON.stringify(chunk);
-            setLabel("debug-label", debugOutput); */
+            
             try {
               const curDelta = chunk.choices[0].delta.content;
               if (curDelta) {
@@ -180,57 +160,34 @@
             } catch (error) {
               console.error("Error in getChatModelResponse progressCallback");
               console.error(error.toString());
-              /* debugOutput += " progressCallback error ";
-              debugOutput += error.toString();
-              debugOutput += error.name;
-              debugOutput += error.message;
-              setLabel("debug-label", debugOutput);  */
+              
             };
           };
         } catch (error) {
           console.error("Error in getChatModelResponse completion loop");
           console.error(error.toString());
-          /* debugOutput += " completion loop error ";
-          debugOutput += error.toString();
-          debugOutput += error.name;
-          debugOutput += error.message;
-          setLabel("debug-label", debugOutput);  */
+          
         };
       } catch (error) {
         console.error("Error in getChatModelResponse completion");
         console.error(error.toString());
-        /* debugOutput += " completion error ";
-        debugOutput += error.toString();
-              debugOutput += error.name;
-              debugOutput += error.message;
-        setLabel("debug-label", debugOutput);  */
+       
       };
 
       try {
-        /* debugOutput += " before getMessage ";
-        setLabel("debug-label", debugOutput); */
+       
         const reply = await $chatModelGlobal.getMessage();
-        /* debugOutput += " reply ";
-        debugOutput += reply;
-        setLabel("debug-label", debugOutput); */
+       
         return reply;
       } catch (error) {
         console.error("Error in getChatModelResponse reply");
         console.error(error.toString());
-        /* debugOutput += " reply error ";
-        debugOutput += error.toString();
-              debugOutput += error.name;
-              debugOutput += error.message;
-        setLabel("debug-label", debugOutput);    */
+       
       };
     } catch (error) {
       console.error("Error in getChatModelResponse");
       console.error(error.toString());
-      /* debugOutput += " outer error ";
-      debugOutput += error.toString();
-              debugOutput += error.name;
-              debugOutput += error.message;
-      setLabel("debug-label", debugOutput);   */
+     
     };
     // if no reply was returned, an error occurred
     throw new Error('An error occurred');

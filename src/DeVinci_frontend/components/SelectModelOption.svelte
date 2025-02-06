@@ -136,7 +136,10 @@
     if (!modelOptionId) {
       modelOptionId = $selectedAiModelId;
     };
-    if (process.env.NODE_ENV !== "development") {
+    console.log("Vite Mode:", import.meta.env.MODE);
+    console.log("Vite Mode:", process.env.NODE_ENV);
+    // if (process.env.NODE_ENV !== "development") {
+    if(import.meta.env.MODE !== "development"){
       console.info("Using web worker");
       try {
         /* TODO: fix
